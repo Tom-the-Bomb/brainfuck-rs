@@ -1,30 +1,30 @@
 use error::{Error, Result};
-use std::io::Write;
+use std::io::{Read, Write};
 
 pub mod error;
 
-#[derive(Debug, Clone)]
-pub struct Brainfuck {
+
+pub struct Brainfuck<I: Read = std::io::Stdin, O: Write = std::io::Stdout> {
     pub code: String,
-    pub input: String,
-    pub use_stdin: bool,
+    pub input: Option<I>,
+    pub output: Option<O>,
     pub max_cell_value: u32,
     pub memory_size: Option<usize>,
 }
 
-impl Default for Brainfuck {
+impl<I: Read, O: Write> Default for Brainfuck<I, O> {
     fn default() -> Self {
         Self::new("")
     }
 }
 
-impl Brainfuck {
+impl<I: Read, O: Write> Brainfuck<I, O> {
     #[must_use]
     pub fn new(code: &str) -> Self {
         Self {
             code: code.to_string(),
-            input: String::new(),
-            use_stdin: false,
+            input: None,
+            output: None,
             max_cell_value: 255,
             memory_size: None,
         }
@@ -37,20 +37,20 @@ impl Brainfuck {
     }
 
     #[must_use]
-    pub fn with_input(mut self, input: &str) -> Self {
-        self.input = input.to_string();
+    pub fn with_input(mut self, input: I) -> Self {
+        self.input = Some(input);
+        self
+    }
+
+    #[must_use]
+    pub fn with_output(mut self, output: O) -> Self {
+        self.output = Some(output);
         self
     }
 
     #[must_use]
     pub const fn with_max_value(mut self, cell_value: u32) -> Self {
         self.max_cell_value = cell_value;
-        self
-    }
-
-    #[must_use]
-    pub const fn use_stdin(mut self) -> Self {
-        self.use_stdin = true;
         self
     }
 
@@ -110,7 +110,6 @@ impl Brainfuck {
 
         let mut code_idx = 0;
         let mut ptr = 0;
-        let mut input_index = 0;
 
         while code_idx < self.code
             .chars()
@@ -158,15 +157,17 @@ impl Brainfuck {
                             .ok();
                     }
                 Some(',') =>
-                    if self.use_stdin {
-                        cells[ptr] = Self::read_from_console()? as u32;
-                    } else {
-                        if let Some(chr) = self.input.chars()
-                            .nth(input_index)
-                        {
-                            cells[ptr] = chr as u32;
+                    {
+                        if let Some(reader) = &self.input {
+                            if let Some(byt) = &reader
+                                .bytes()
+                                .next()
+                            {
+                                let x = byt.clone();
+                            }
+                        } else {
+                            cells[ptr] = Self::read_from_console()? as u32;
                         }
-                        input_index += 1;
                     },
                 Some('[') =>
                     if cells[ptr] == 0 {
