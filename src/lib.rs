@@ -19,6 +19,7 @@ impl Default for Brainfuck {
 }
 
 impl Brainfuck {
+    #[must_use]
     pub fn new(code: &str) -> Self {
         Self {
             code: code.to_string(),
@@ -42,13 +43,13 @@ impl Brainfuck {
     }
 
     #[must_use]
-    pub fn with_max_value(mut self, cell_value: u32) -> Self {
+    pub const fn with_max_value(mut self, cell_value: u32) -> Self {
         self.max_cell_value = cell_value;
         self
     }
 
     #[must_use]
-    pub fn use_stdin(mut self) -> Self {
+    pub const fn use_stdin(mut self) -> Self {
         self.use_stdin = true;
         self
     }
@@ -60,7 +61,7 @@ impl Brainfuck {
         buffer
             .chars()
             .next()
-            .ok_or(Error::InvalidInput(buffer))
+            .ok_or_else(|| Error::InvalidInput(buffer))
     }
 
     /// executes the provided brainfuck code
@@ -80,13 +81,17 @@ impl Brainfuck {
     /// - `<`: moves the pointer down 1 cell
     ///   if the value goes below `0`, it gets wrapped back to the end of the memory array
     /// - `.`: writes value of the current cell as ASCII into the stdout
+    /// 
+    /// # Errors
+    /// - [`Error::InvalidInput`]: invalid input read (empty)
+    /// - [`Error::InputStreamFailure`]: failed to read from stdin
     pub fn execute(&self) -> Result<()> {
         let mut cells =
-            if let Some(mem_size) = self.memory_size {
-                vec![0; mem_size]
-            } else {
-                vec![0]
-            };
+            self.memory_size
+                .map_or_else(
+                    || vec![0],
+                    |mem_size| vec![0; mem_size],
+                );
 
         let mut code_idx = 0;
         let mut ptr = 0;
@@ -121,23 +126,19 @@ impl Brainfuck {
                         if ptr >= mem_size {
                             ptr = 0;
                         }
-                    } else {
-                        if ptr >= cells.len() {
-                            cells.push(0);
-                        };
+                    } else if ptr >= cells.len() {
+                        cells.push(0);
                     }
                 },
                 Some('.') =>
                     if let Some(ascii) =
                         std::char::from_u32(cells[ptr])
                     {
-                        print!("{}", ascii);
+                        print!("{ascii}");
                         std::io::stdout()
                             .flush()
                             .ok();
-                    } else {
-                        return Err(Error::InvalidCharacter)
-                    },
+                    }
                 Some(',') =>
                     if self.use_stdin {
                         cells[ptr] = Self::read_from_console()? as u32;

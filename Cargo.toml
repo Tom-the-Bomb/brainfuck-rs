@@ -1,8 +1,17 @@
 [package]
 name = "brainfuck"
+authors = ["Tom-the-Bomb"]
+description = "a brainfuck interpreter implemented in rust"
+repository = "https://github.com/Tom-the-Bomb/brainfuck-rs"
+license = "MIT"
+readme = "README.md"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+keywords = [
+    "Programming language"
+]
+categories = [
+    "Compilers"
+]
 
 [dependencies]

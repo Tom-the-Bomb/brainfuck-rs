@@ -2,11 +2,8 @@ use std::io::Error as IoError;
 
 #[derive(Debug)]
 pub enum Error {
-    InvalidCharacter,
-    CellValueOutOfBounds(isize),
     InvalidInput(String),
     InputStreamFailure(IoError),
-    PointerOutOfBounds,
 }
 
 impl From<IoError> for Error {
