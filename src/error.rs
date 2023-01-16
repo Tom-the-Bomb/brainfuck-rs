@@ -2,6 +2,10 @@ use std::io::Error as IoError;
 
 #[derive(Debug)]
 pub enum Error {
+    MismatchedBrackets {
+        opening: usize,
+        closing: usize,
+    },
     InvalidInput(String),
     InputStreamFailure(IoError),
 }

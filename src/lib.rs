@@ -86,6 +86,21 @@ impl Brainfuck {
     /// - [`Error::InvalidInput`]: invalid input read (empty)
     /// - [`Error::InputStreamFailure`]: failed to read from stdin
     pub fn execute(&self) -> Result<()> {
+        let (opening, closing) = (
+            self.code.chars()
+                .filter(|c| c == &'[')
+                .count(),
+            self.code.chars()
+                .filter(|c| c == &']')
+                .count()
+        );
+
+        if opening != closing {
+            return Err(Error::MismatchedBrackets {
+                opening, closing
+            });
+        }
+
         let mut cells =
             self.memory_size
                 .map_or_else(
@@ -95,9 +110,12 @@ impl Brainfuck {
 
         let mut code_idx = 0;
         let mut ptr = 0;
-        let mut input_index = 0usize;
+        let mut input_index = 0;
 
-        while code_idx < self.code.len() {
+        while code_idx < self.code
+            .chars()
+            .count()
+        {
             match self.code
                 .chars()
                 .nth(code_idx)
