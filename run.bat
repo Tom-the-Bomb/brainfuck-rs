@@ -1,4 +1,4 @@
 :: quick testing
 @ECHO off
 
-cargo run --release
+cargo test --release -- --nocapture
