@@ -128,6 +128,7 @@ impl Brainfuck {
     ///
     /// # Errors
     /// - [`Error::MismatchedBrackets`]: the amount of `[` in the code is unequal to the amount of `]`
+    /// - [`Error::IoError`]: Propogated from [`std::io::Error`] in the `.` operation
     ///
     pub fn execute(&mut self) -> Result<()> {
         let (opening, closing) = (
@@ -192,21 +193,23 @@ impl Brainfuck {
                     }
                 },
                 Some('.') =>
-                    if let Some(ref mut writer) =
-                        self.output
-                    {
-                        writer.write_all(&[cells[ptr] as u8])
-                            .ok();
-                        writer.flush()
-                            .ok();
-                    } else if let Some(ascii) =
+                    if let Some(chr) = 
                         std::char::from_u32(cells[ptr])
                     {
-                        print!("{ascii}");
-                        std::io::stdout()
-                            .flush()
-                            .ok();
-                    },
+                        if let Some(ref mut writer) =
+                            self.output
+                        {
+                            let mut buf = [0; 4];
+                            chr.encode_utf8(&mut buf);
+
+                            writer.write_all(&buf)?;
+                            writer.flush()?;
+                        } else {
+                            print!("{chr}");
+                            std::io::stdout()
+                                .flush()?;
+                        }
+                    }
                 Some(',') =>
                     cells[ptr] = if let Some(ref mut reader) =
                         self.input

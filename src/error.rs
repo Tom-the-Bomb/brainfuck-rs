@@ -1,3 +1,4 @@
+use std::io::Error as IoError;
 
 /// error enum for brainfuck runtime errors
 #[derive(Debug)]
@@ -9,6 +10,13 @@ pub enum Error {
         /// the amount of `]` in the code
         closing: usize,
     },
+    IoError(IoError),
+}
+
+impl From<IoError> for Error {
+    fn from(err: IoError) -> Self {
+        Self::IoError(err)
+    }
 }
 
 /// result type alias for [`Error`]
