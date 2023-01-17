@@ -9,7 +9,7 @@ pub use error::{Error, Result};
 pub mod error;
 
 
-/// struct representing a brainfuck interpreter
+/// struct representing a brainfuck interpreter instance
 pub struct Brainfuck {
     /// the brainfuck code to execute
     pub code: String,
@@ -22,6 +22,9 @@ pub struct Brainfuck {
     /// sets the maximum length of the memory array
     /// defaults to `None`, which is "infinite"
     pub memory_size: Option<usize>,
+    /// indicates whether or not to manually flush the output buffer every write
+    /// if set to `false` it will let the process automatically flush (end of program or at every newline)
+    pub flush_output: bool,
 }
 
 impl Default for Brainfuck {
@@ -43,6 +46,7 @@ impl Brainfuck {
             output: None,
             max_cell_value: 255,
             memory_size: None,
+            flush_output: false,
         }
     }
 
@@ -87,10 +91,17 @@ impl Brainfuck {
         self
     }
 
+    /// builder method to indicate to flush the output stream every write
+    #[must_use]
+    pub const fn flush_manually(mut self) -> Self {
+        self.flush_output = true;
+        self
+    }
+
     /// helper method to read from [`std::io::stdin`]
     /// as a fallback to if no other input stream is specified for the `,` operation
     #[must_use]
-    fn read_from_console() -> u32 {
+    fn read_from_stdin() -> u32 {
         let mut buffer = [0];
         match std::io::stdin()
             .read_exact(&mut buffer[0..1])
@@ -203,11 +214,15 @@ impl Brainfuck {
                             chr.encode_utf8(&mut buf);
 
                             writer.write_all(&buf)?;
-                            writer.flush()?;
+                            if self.flush_output {
+                                writer.flush()?;
+                            }
                         } else {
                             print!("{chr}");
-                            std::io::stdout()
-                                .flush()?;
+                            if self.flush_output {
+                                std::io::stdout()
+                                    .flush()?;
+                            }
                         }
                     },
                 Some(',') =>
@@ -222,7 +237,7 @@ impl Brainfuck {
                             Err(_) => 0,
                         }
                     } else {
-                        Self::read_from_console()
+                        Self::read_from_stdin()
                     },
                 Some('[') =>
                     if cells[ptr] == 0 {
