@@ -120,6 +120,7 @@ impl Brainfuck {
     ///   defaulting to [`std::io::stdout`]
     /// - `,`: reads 1 byte from the provided input stream, `self.input`
     ///   defaulting to [`std::io::stdin`]
+    ///   if reading fails (e.g. there were no bytes to read) the current cell gets set back to `0`
     /// - `[`: always should be paired with a `]`, acts as a "loop" in brainfuck
     ///   the code that is enclosed within a pair of `[ ]` gets looped over until the current cell != 0
     /// - `]`: the closing bracket for a loop, paired with `[`
