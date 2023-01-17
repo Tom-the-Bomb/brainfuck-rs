@@ -209,7 +209,7 @@ impl Brainfuck {
                             std::io::stdout()
                                 .flush()?;
                         }
-                    }
+                    },
                 Some(',') =>
                     cells[ptr] = if let Some(ref mut reader) =
                         self.input
