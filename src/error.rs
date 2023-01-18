@@ -12,9 +12,21 @@ pub enum Error {
     },
     /// propogated from opening or reading files for the brainfuck source code
     /// to be interpreted, in [`crate::Brainfuck::from_file`]
-    FileReadError(IoError),
+    FileReadError(
+        /// propogated error
+        IoError
+    ),
     /// propogated from `.` and `,` I/O operations
-    IoError(IoError),
+    IoError(
+        /// propogated error
+        IoError
+    ),
+    /// returned when the amount of instructions executed
+    /// reaches the limit of instructions to be executed that is set
+    MaxInstructionsExceeded(
+        /// the instructions limit that's set
+        usize
+    ),
 }
 
 impl From<IoError> for Error {

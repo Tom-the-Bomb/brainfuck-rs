@@ -10,6 +10,10 @@ pub use error::{Error, Result};
 
 pub mod error;
 
+/// default max value a cell can have
+/// it is `255`, the same as [`std::u8::MAX`]
+pub const DEFAULT_MAX_CELL_VALUE: u32 = 255;
+
 
 /// struct representing a brainfuck interpreter instance
 pub struct Brainfuck {
@@ -22,11 +26,17 @@ pub struct Brainfuck {
     /// sets the maximum value of a cell, defaults to `255`
     pub max_cell_value: u32,
     /// sets the maximum length of the memory array
-    /// defaults to `None`, which is "infinite"
+    /// defaults to [`None`], which is "infinite"
     pub memory_size: Option<usize>,
     /// indicates whether or not to manually flush the output buffer every write
     /// if set to `false` it will let the process automatically flush (end of program or at every newline)
     pub flush_output: bool,
+    /// sets the limit on the amount of instructions we can process in one program
+    /// defaults to [`None`], which is no limit
+    /// (for safety and debugging usage)
+    pub instructions_limit: Option<usize>,
+    /// an instructions counter to count the number of instructions executed thus far
+    instructions_ctn: usize,
 }
 
 impl Default for Brainfuck {
@@ -46,9 +56,11 @@ impl Brainfuck {
             code: code.to_string(),
             input: None,
             output: None,
-            max_cell_value: 255,
+            max_cell_value: DEFAULT_MAX_CELL_VALUE,
             memory_size: None,
             flush_output: false,
+            instructions_limit: None,
+            instructions_ctn: 0,
         }
     }
 
@@ -116,6 +128,19 @@ impl Brainfuck {
         self
     }
 
+    /// builder method to set the maximum amount of instructions we can process in one program
+    #[must_use]
+    pub const fn with_instructions_limit(mut self, limit: usize) -> Self {
+        self.instructions_limit = Some(limit);
+        self
+    }
+
+    /// a getter that returns the number of instructions executed thus far
+    #[must_use]
+    pub const fn instructions_count(&self) -> usize {
+        self.instructions_ctn
+    }
+
     /// helper method to read from [`std::io::stdin`]
     /// as a fallback to if no other input stream is specified for the `,` operation
     #[must_use]
@@ -136,13 +161,14 @@ impl Brainfuck {
     /// `+ - < > . , [ ]`
     /// different implementations vary on wraparound rules
     ///
+    /// # Operations
     /// - `+`: increments the current cell by `1`
     ///   if the value exceeds `self.max_cell_value`, it gets wrapped back to `0`
     /// - `-`: decrements the current cell by `1`
     ///   if the value goes below `0`, it gets wrapped back to `self.max_cell_value`
     /// - `>`: moves the pointer up 1 cell
     ///   if the the pointer exceeds `self.memory_size`, it gets wrapped back to `0`;
-    ///   however, if `self.memory_size` is `None`, it will grow the array by 1 additional cell
+    ///   however, if `self.memory_size` is [`None`], it will grow the array by 1 additional cell
     /// - `<`: moves the pointer down 1 cell
     ///   if the value goes below `0`, it gets wrapped back to the end of the memory array
     /// - `.`: writes the value of the current cell as ASCII into the provided output stream, `self.output`
@@ -183,8 +209,9 @@ impl Brainfuck {
                     |mem_size| vec![0; mem_size],
                 );
 
-        let mut code_idx = 0;
-        let mut ptr = 0;
+        self.instructions_ctn = 0;
+        let mut code_idx = 0usize;
+        let mut ptr = 0usize;
 
         while code_idx < self.code
             .chars()
@@ -292,6 +319,13 @@ impl Brainfuck {
                 _ => (),
             }
             code_idx += 1;
+            self.instructions_ctn += 1;
+
+            if let Some(cap) = self.instructions_limit {
+                if self.instructions_ctn > cap {
+                    return Err(Error::MaxInstructionsExceeded(cap));
+                }
+            }
         }
 
         Ok(())
