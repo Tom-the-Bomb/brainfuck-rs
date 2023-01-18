@@ -1,6 +1,8 @@
 //! a simple brainfuck interpreter implemented in rust
 
 use std::{
+    fs::File,
+    path::Path,
     fmt::Display,
     io::{Read, Write},
 };
@@ -48,6 +50,22 @@ impl Brainfuck {
             memory_size: None,
             flush_output: false,
         }
+    }
+
+    /// an alternative to `Self::new`,
+    /// used when the code is in a source file instead of being directly accessible as a string in the code
+    ///
+    /// # Errors
+    /// - [`Error::FileReadError`]: propogated from [`std::io::Error`]
+    ///   when opening or reading the source file
+    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
+        let mut buf = String::new();
+        let mut file = File::open(path)
+            .map_err(Error::FileReadError)?;
+
+        file.read_to_string(&mut buf)
+            .map_err(Error::FileReadError)?;
+        Ok(Self::new(buf))
     }
 
     /// builder method to specify the brainfuck code for the interpreter
@@ -106,7 +124,7 @@ impl Brainfuck {
         match std::io::stdin()
             .read_exact(&mut buffer[0..1])
         {
-            Ok(_) => buffer[0] as u32,
+            Ok(_) => u32::from(buffer[0]),
             Err(_) => 0,
         }
     }
@@ -141,6 +159,7 @@ impl Brainfuck {
     /// - [`Error::MismatchedBrackets`]: the amount of `[` in the code is unequal to the amount of `]`
     /// - [`Error::IoError`]: Propogated from [`std::io::Error`] in the `.` operation
     ///
+    #[allow(clippy::too_many_lines)]
     pub fn execute(&mut self) -> Result<()> {
         let (opening, closing) = (
             self.code.chars()
@@ -204,7 +223,7 @@ impl Brainfuck {
                     }
                 },
                 Some('.') =>
-                    if let Some(chr) = 
+                    if let Some(chr) =
                         std::char::from_u32(cells[ptr])
                     {
                         if let Some(ref mut writer) =
@@ -225,6 +244,7 @@ impl Brainfuck {
                             }
                         }
                     },
+                #[allow(clippy::option_if_let_else)]
                 Some(',') =>
                     cells[ptr] = if let Some(ref mut reader) =
                         self.input
@@ -233,7 +253,7 @@ impl Brainfuck {
                         match reader
                             .read_exact(&mut buffer[0..1])
                         {
-                            Ok(_) => buffer[0] as u32,
+                            Ok(_) => u32::from(buffer[0]),
                             Err(_) => 0,
                         }
                     } else {

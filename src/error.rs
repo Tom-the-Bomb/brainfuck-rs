@@ -10,6 +10,10 @@ pub enum Error {
         /// the amount of `]` in the code
         closing: usize,
     },
+    /// propogated from opening or reading files for the brainfuck source code
+    /// to be interpreted, in [`crate::Brainfuck::from_file`]
+    FileReadError(IoError),
+    /// propogated from `.` and `,` I/O operations
     IoError(IoError),
 }
 
