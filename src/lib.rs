@@ -180,13 +180,15 @@ impl Brainfuck {
     ///   the code that is enclosed within a pair of `[ ]` gets looped over until the current cell != 0
     /// - `]`: the closing bracket for a loop, paired with `[`
     ///   if current cell != jump back to corresponding `[`
+    /// 
+    /// returns the used memory array of the program, ([`Vec<u32>`])
     ///
     /// # Errors
     /// - [`Error::MismatchedBrackets`]: the amount of `[` in the code is unequal to the amount of `]`
     /// - [`Error::IoError`]: Propogated from [`std::io::Error`] in the `.` operation
     ///
     #[allow(clippy::too_many_lines)]
-    pub fn execute(&mut self) -> Result<()> {
+    pub fn execute(&mut self) -> Result<Vec<u32>> {
         let (opening, closing) = (
             self.code.chars()
                 .filter(|c| c == &'[')
@@ -328,6 +330,6 @@ impl Brainfuck {
             }
         }
 
-        Ok(())
+        Ok(cells)
     }
 }
