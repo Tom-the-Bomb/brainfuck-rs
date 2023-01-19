@@ -180,7 +180,7 @@ impl Brainfuck {
     ///   the code that is enclosed within a pair of `[ ]` gets looped over until the current cell != 0
     /// - `]`: the closing bracket for a loop, paired with `[`
     ///   if current cell != jump back to corresponding `[`
-    /// 
+    ///
     /// returns the used memory array of the program, ([`Vec<u32>`])
     ///
     /// # Errors
@@ -258,7 +258,7 @@ impl Brainfuck {
                         if let Some(ref mut writer) =
                             self.output
                         {
-                            let mut buf = [0; 4];
+                            let mut buf = vec![0; chr.len_utf8()];
                             chr.encode_utf8(&mut buf);
 
                             writer.write_all(&buf)?;
