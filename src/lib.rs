@@ -189,7 +189,7 @@ impl Brainfuck {
     /// executes the provided brainfuck code
     /// which is stored in the struct field: `code`
     ///
-    /// brainfuck supports 8 operands which are as following:
+    /// brainfuck supports 8 operations which are as following:
     /// `+ - < > . , [ ]`
     /// different implementations vary on wraparound rules
     ///
