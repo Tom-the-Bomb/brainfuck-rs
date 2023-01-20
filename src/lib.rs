@@ -173,14 +173,17 @@ impl Brainfuck {
     /// helper method to read from [`std::io::stdin`]
     /// it prompts every time this function is called however
     /// as a fallback to if no other input stream is specified for the `,` operation
-    fn read_from_stdin() -> Result<u32> {
+    fn read_from_stdin() -> u32 {
         let mut buffer = String::new();
-        std::io::stdin()
-            .read_line(&mut buffer)?;
-        Ok(buffer
-            .chars()
-            .next()
-            .map_or(0, |c| c as u32))
+        match std::io::stdin()
+            .read_line(&mut buffer)
+        {
+            Ok(_) => buffer
+                .chars()
+                .next()
+                .map_or(0, |c| c as u32),
+            Err(_) => 0,
+        }
     }
 
     /// executes the provided brainfuck code
@@ -204,7 +207,7 @@ impl Brainfuck {
     ///   defaulting to [`std::io::stdout`]
     /// - `,`: reads 1 byte from the provided input stream, `self.input`
     ///   defaulting to [`std::io::stdin`]
-    ///   if reading fails (e.g. there were no bytes to read) the current cell gets set back to `0`
+    ///   if reading fails (e.g. there were no bytes to read (EOF) or other error), the current cell gets set back to `0`
     /// - `[`: always should be paired with a `]`, acts as a "loop" in brainfuck
     ///   the code that is enclosed within a pair of `[ ]` gets looped over until the current cell != 0
     /// - `]`: the closing bracket for a loop, paired with `[`
@@ -317,7 +320,7 @@ impl Brainfuck {
                     } else if self.prompt_stdin_once {
                         Self::read_from_stdin_once()
                     } else {
-                        Self::read_from_stdin()?
+                        Self::read_from_stdin()
                     },
                 Some('[') =>
                     if cells[ptr] == 0 {
