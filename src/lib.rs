@@ -1,4 +1,5 @@
 //! a simple brainfuck interpreter implemented in rust
+//! see [`Brainfuck`] for more information on usage
 
 use std::{
     fs::File,
@@ -30,7 +31,13 @@ pub struct Brainfuck {
     pub memory_size: Option<usize>,
     /// indicates whether or not to manually flush the output buffer every write
     /// if set to `false` it will let the process automatically flush (end of program or at every newline)
+    /// defaults to `true`
     pub flush_output: bool,
+    /// this field is only of use if the input stream used is [`std::io::stdin`]
+    /// it specifies whether or not to retrieve all the input data needed in one prompt the first time
+    /// or rather prompt the user every time for a character
+    /// defaults to `false`
+    pub prompt_stdin_once: bool,
     /// sets the limit on the amount of instructions we can process in one program
     /// defaults to [`None`], which is no limit
     /// (for safety and debugging usage)
@@ -58,7 +65,8 @@ impl Brainfuck {
             output: None,
             max_cell_value: DEFAULT_MAX_CELL_VALUE,
             memory_size: None,
-            flush_output: false,
+            flush_output: true,
+            prompt_stdin_once: false,
             instructions_limit: None,
             instructions_ctn: 0,
         }
@@ -121,10 +129,17 @@ impl Brainfuck {
         self
     }
 
-    /// builder method to indicate to flush the output stream every write
+    /// builder method to indicate whether or not to flush the output stream on every write
     #[must_use]
-    pub const fn flush_manually(mut self) -> Self {
-        self.flush_output = true;
+    pub const fn with_flush(mut self, flush: bool) -> Self {
+        self.flush_output = flush;
+        self
+    }
+
+    /// builder method to indicate whether or not to only prompt [`std::io::stdin`] once
+    #[must_use]
+    pub const fn prompt_stdin_once(mut self, once: bool) -> Self {
+        self.prompt_stdin_once = once;
         self
     }
 
@@ -142,9 +157,10 @@ impl Brainfuck {
     }
 
     /// helper method to read from [`std::io::stdin`]
+    /// it accomplishes such in one prompt, retrieving all the data at once
     /// as a fallback to if no other input stream is specified for the `,` operation
     #[must_use]
-    fn read_from_stdin() -> u32 {
+    fn read_from_stdin_once() -> u32 {
         let mut buffer = [0];
         match std::io::stdin()
             .read_exact(&mut buffer[0..1])
@@ -152,6 +168,19 @@ impl Brainfuck {
             Ok(_) => u32::from(buffer[0]),
             Err(_) => 0,
         }
+    }
+
+    /// helper method to read from [`std::io::stdin`]
+    /// it prompts every time this function is called however
+    /// as a fallback to if no other input stream is specified for the `,` operation
+    fn read_from_stdin() -> Result<u32> {
+        let mut buffer = String::new();
+        std::io::stdin()
+            .read_line(&mut buffer)?;
+        Ok(buffer
+            .chars()
+            .next()
+            .map_or(0, |c| c as u32))
     }
 
     /// executes the provided brainfuck code
@@ -285,8 +314,10 @@ impl Brainfuck {
                             Ok(_) => u32::from(buffer[0]),
                             Err(_) => 0,
                         }
+                    } else if self.prompt_stdin_once {
+                        Self::read_from_stdin_once()
                     } else {
-                        Self::read_from_stdin()
+                        Self::read_from_stdin()?
                     },
                 Some('[') =>
                     if cells[ptr] == 0 {

@@ -5,7 +5,7 @@ description = "a brainfuck interpreter implemented in rust"
 repository = "https://github.com/Tom-the-Bomb/brainfuck-rs"
 license = "MIT"
 readme = "README.md"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 keywords = [
     "programming-language",
@@ -14,7 +14,7 @@ keywords = [
 ]
 categories = [
     "compilers",
-    "parser-implementations"
+    "parser-implementations",
 ]
 
 [dependencies]
