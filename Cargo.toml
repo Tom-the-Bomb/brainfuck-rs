@@ -13,7 +13,8 @@ keywords = [
     "interpreter",
 ]
 categories = [
-    "Compilers"
+    "compilers",
+    "parser-implementations"
 ]
 
 [dependencies]
