@@ -1,5 +1,5 @@
 [package]
-name = "brainfuck-rs"
+name = "brainfuck-exe"
 authors = ["Tom-the-Bomb"]
 description = "a brainfuck interpreter implemented in rust"
 repository = "https://github.com/Tom-the-Bomb/brainfuck-rs"

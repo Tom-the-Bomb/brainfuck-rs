@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use std::fs::{File, OpenOptions};
-    use brainfuck_rs::{Brainfuck, Result};
+    use brainfuck_exe::{Brainfuck, Result};
 
     #[test]
     fn test_hello_world_file() -> Result<()> {
