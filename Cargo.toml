@@ -8,7 +8,9 @@ readme = "README.md"
 version = "0.1.0"
 edition = "2021"
 keywords = [
-    "Programming language"
+    "programming-language",
+    "language",
+    "interpreter",
 ]
 categories = [
     "Compilers"
