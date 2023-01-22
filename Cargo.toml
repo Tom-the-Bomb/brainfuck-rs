@@ -1,8 +1,9 @@
 [package]
 name = "brainfuck-exe"
 authors = ["Tom-the-Bomb"]
-description = "a brainfuck interpreter implemented in rust"
+description = "A brainfuck interpreter implemented in rust"
 repository = "https://github.com/Tom-the-Bomb/brainfuck-rs"
+documentation = "https://docs.rs/brainfuck-exe"
 license = "MIT"
 readme = "README.md"
 version = "0.1.1"
@@ -18,3 +19,4 @@ categories = [
 ]
 
 [dependencies]
+clap = { version = "4.1", features = ["derive"] }

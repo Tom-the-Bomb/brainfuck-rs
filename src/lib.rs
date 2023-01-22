@@ -1,4 +1,5 @@
 //! a simple brainfuck interpreter implemented in rust
+//!
 //! see [`Brainfuck`] for more information on usage
 
 use std::{
@@ -27,19 +28,23 @@ pub struct Brainfuck {
     /// sets the maximum value of a cell, defaults to `255`
     pub max_cell_value: u32,
     /// sets the maximum length of the memory array
+    ///
     /// defaults to [`None`], which is "infinite"
     pub memory_size: Option<usize>,
     /// indicates whether or not to manually flush the output buffer every write
-    /// if set to `false` it will let the process automatically flush (end of program or at every newline)
+    ///
+    /// if set to `false` it will let the process automatically flush (end of program or at every newline),
     /// defaults to `true`
     pub flush_output: bool,
     /// this field is only of use if the input stream used is [`std::io::stdin`]
+    ///
     /// it specifies whether or not to retrieve all the input data needed in one prompt the first time
-    /// or rather prompt the user every time for a character
+    /// or rather prompt the user every time for a character,
     /// defaults to `false`
     pub prompt_stdin_once: bool,
     /// sets the limit on the amount of instructions we can process in one program
-    /// defaults to [`None`], which is no limit
+    ///
+    /// defaults to [`None`], which is *no* limit
     /// (for safety and debugging usage)
     pub instructions_limit: Option<usize>,
     /// an instructions counter to count the number of instructions executed thus far
@@ -54,9 +59,10 @@ impl Default for Brainfuck {
 
 impl Brainfuck {
     /// creates a new instance of a brainfuck interpeter with the provided `code`
-    /// input and output streams default to [`std::io::stdin`] and [`std::io::stdout`] respectively
-    /// maximum value a cell can have is `255`
-    /// and the memory array length can grow infinitely
+    ///
+    /// - input and output streams default to [`std::io::stdin`] and [`std::io::stdout`] respectively
+    /// - the maximum value a cell can have is `255` (8 bits / 1 byte)
+    /// - the program's memory array can grow indefinitely
     #[must_use]
     pub fn new<S: Display>(code: S) -> Self {
         Self {
@@ -157,6 +163,7 @@ impl Brainfuck {
     }
 
     /// helper method to read from [`std::io::stdin`]
+    ///
     /// it accomplishes such in one prompt, retrieving all the data at once
     /// as a fallback to if no other input stream is specified for the `,` operation
     #[must_use]
@@ -171,6 +178,7 @@ impl Brainfuck {
     }
 
     /// helper method to read from [`std::io::stdin`]
+    ///
     /// it prompts every time this function is called however
     /// as a fallback to if no other input stream is specified for the `,` operation
     fn read_from_stdin() -> u32 {
@@ -191,6 +199,7 @@ impl Brainfuck {
     ///
     /// brainfuck supports 8 operations which are as following:
     /// `+ - < > . , [ ]`
+    ///
     /// different implementations vary on wraparound rules
     ///
     /// # Operations
@@ -216,7 +225,7 @@ impl Brainfuck {
     /// returns the used memory array of the program, ([`Vec<u32>`])
     ///
     /// # Errors
-    /// - [`Error::MismatchedBrackets`]: the amount of `[` in the code is unequal to the amount of `]`
+    /// - [`Error::MismatchedBrackets`]: the amount of `[` in the code does not equal the amount of `]`
     /// - [`Error::IoError`]: Propogated from [`std::io::Error`] in the `.` operation
     ///
     #[allow(clippy::too_many_lines)]
