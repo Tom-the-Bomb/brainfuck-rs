@@ -6,7 +6,7 @@ use clap::{CommandFactory, Parser};
 use brainfuck_exe::Brainfuck;
 
 #[derive(Parser, Debug)]
-#[command(name = "Brainfuck-rs", author, version, about, arg_required_else_help = true)]
+#[command(name = "Brainfuck-exe", author, version, about, arg_required_else_help = true)]
 struct Args {
     /// The code of the brainfuck program
     /// this argument is required unless [-f] [--file] is specified (file)
@@ -46,6 +46,7 @@ struct Args {
     print_cells: bool,
 }
 
+#[allow(clippy::option_if_let_else, clippy::single_match_else)]
 fn main() {
     let args = Args::parse();
 
