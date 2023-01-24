@@ -9,6 +9,7 @@
 //! Below is a basic example on how to use the crate
 //!
 //! ```rust
+//! 
 //! // import Result typealias and interpreter struct
 //! use brainfuck_exe::{Result, Brainfuck};
 //! use std::fs::File;
@@ -27,7 +28,7 @@
 //!         // executes the code
 //!         .execute()?;
 //!
-//!     /// alternatively use this to retrieve the code from an existing source file
+//!     // alternatively use this to retrieve the code from an existing source file
 //!     Brainfuck::from_file("hello_world.bf")?
 //!         .execute()?;
 //!
@@ -43,7 +44,7 @@
 //! $ cargo install brainfuck-exe
 //! # usage
 //! $ brainfuck --help
-//! $ brainfuck [CODE] [-f FILE]
+//! $ brainfuck [CODE] [-f FILE] [OPTIONS]
 //! ```
 
 use std::{
