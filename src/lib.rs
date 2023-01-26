@@ -9,7 +9,7 @@
 //! Below is a basic example on how to use the crate
 //!
 //! ```rust
-//! 
+//!
 //! // import Result typealias and interpreter struct
 //! use brainfuck_exe::{Result, Brainfuck};
 //! use std::fs::File;
@@ -58,13 +58,14 @@ pub use error::{Error, Result};
 pub mod error;
 
 /// default max value a cell can have
+///
 /// it is `255`, the same as [`std::u8::MAX`]
 pub const DEFAULT_MAX_CELL_VALUE: u32 = 255;
 
 
-/// struct representing a brainfuck interpreter instance
+/// The struct representing a brainfuck interpreter instance
 pub struct Brainfuck {
-    /// the brainfuck code to execute
+    /// the brainfuck source code to execute
     pub code: String,
     /// the input stream used for `,` operations
     input: Option<Box<dyn Read>>,
