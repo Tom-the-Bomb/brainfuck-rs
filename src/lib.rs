@@ -68,9 +68,9 @@ pub struct Brainfuck {
     /// the brainfuck source code to execute
     pub code: String,
     /// the input stream used for `,` operations
-    input: Option<Box<dyn Read>>,
+    pub input: Option<Box<dyn Read>>,
     /// the output stream used for `.` operations
-    output: Option<Box<dyn Write>>,
+    pub output: Option<Box<dyn Write>>,
     /// sets the maximum value of a cell, defaults to `255`
     pub max_cell_value: u32,
     /// sets the maximum length of the memory array
@@ -206,6 +206,18 @@ impl Brainfuck {
     #[must_use]
     pub const fn instructions_count(&self) -> usize {
         self.instructions_ctn
+    }
+
+    /// consumes itself and returns the input stream in an [`Option`]
+    #[must_use]
+    pub fn into_input(self) -> Option<Box<dyn Read>> {
+        self.input
+    }
+
+    /// consumes itself and returns the output stream in an [`Option`]
+    #[must_use]
+    pub fn into_output(self) -> Option<Box<dyn Read>> {
+        self.input
     }
 
     /// helper method to read from [`std::io::stdin`]
