@@ -216,8 +216,8 @@ impl Brainfuck {
 
     /// consumes itself and returns the output stream in an [`Option`]
     #[must_use]
-    pub fn into_output(self) -> Option<Box<dyn Read>> {
-        self.input
+    pub fn into_output(self) -> Option<Box<dyn Write>> {
+        self.output
     }
 
     /// helper method to read from [`std::io::stdin`]
