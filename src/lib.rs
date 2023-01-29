@@ -52,7 +52,7 @@
 use std::{
     fs::File,
     path::Path,
-    fmt::Display,
+    string::ToString,
     io::{Read, Write},
     ops::{Deref, DerefMut},
 };
@@ -172,7 +172,7 @@ impl<'a> Brainfuck<'a> {
     /// - the maximum value a cell can have is `255` (8 bits / 1 byte)
     /// - the program's memory array can grow indefinitely
     #[must_use]
-    pub fn new<S: Display>(code: S) -> Self {
+    pub fn new<S: ToString>(code: S) -> Self {
         Self {
             code: code.to_string(),
             input: None,
@@ -204,7 +204,7 @@ impl<'a> Brainfuck<'a> {
 
     /// builder method to specify the brainfuck code for the interpreter
     #[must_use]
-    pub fn with_code<S: Display>(mut self, code: S) -> Self {
+    pub fn with_code<S: ToString>(mut self, code: S) -> Self {
         self.code = code.to_string();
         self
     }
