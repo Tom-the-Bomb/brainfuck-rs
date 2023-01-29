@@ -1,6 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use std::fs::{File, OpenOptions};
+    use std::{
+        fs::File,
+        io::Cursor,
+    };
     use brainfuck_exe::{Brainfuck, Result};
 
     #[test]
@@ -48,7 +51,7 @@ mod tests {
     #[test]
     fn test_file_output() -> Result<()> {
         println!();
-        let file = OpenOptions::new()
+        let file = File::options()
             .write(true)
             .open("tests/output.txt")
             .unwrap();
@@ -62,6 +65,23 @@ mod tests {
             .execute()?;
 
         println!();
+        Ok(())
+    }
+
+    #[test]
+    fn test_cursor() -> Result<()> {
+        let buffer = Vec::new();
+        let mut cursor = Cursor::new(buffer);
+
+        let _interp = Brainfuck::new("-.")
+            .with_output_ref(&mut cursor)
+            .execute()?;
+
+        println!("{}",
+            String::from_utf8(cursor.into_inner())
+                .unwrap()
+        );
+
         Ok(())
     }
 }

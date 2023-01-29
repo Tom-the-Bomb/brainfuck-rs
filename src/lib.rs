@@ -10,9 +10,9 @@
 //!
 //! ```rust
 //!
+//! use std::fs::File;
 //! // import Result typealias and interpreter struct
 //! use brainfuck_exe::{Result, Brainfuck};
-//! use std::fs::File;
 //!
 //! fn main() -> Result<()> {
 //!     // brainfuck code to print "Hello, World!"
@@ -22,14 +22,16 @@
 //!     Brainfuck::new(code)
 //!         // optional builder method to write the output into a file not STDOUT
 //!         .with_output(
-//!             File::create("output.txt")
+//!             File::options()
+//!                 .write(true)
+//!                 .open("tests/output.txt")
 //!                 .unwrap()
 //!         )
 //!         // executes the code
 //!         .execute()?;
 //!
 //!     // alternatively use this to retrieve the code from an existing source file
-//!     Brainfuck::from_file("hello_world.bf")?
+//!     Brainfuck::from_file("tests/hello_world.bf")?
 //!         .execute()?;
 //!
 //!     Ok(())
@@ -52,6 +54,7 @@ use std::{
     path::Path,
     fmt::Display,
     io::{Read, Write},
+    ops::{Deref, DerefMut},
 };
 pub use error::{Error, Result};
 
@@ -63,14 +66,73 @@ pub mod error;
 pub const DEFAULT_MAX_CELL_VALUE: u32 = 255;
 
 
+/// a helper wrapper enum that is used for storing the input stream
+/// this allows for it to be passed by value OR reference
+pub enum Reader<'a> {
+    /// used when passing in the input stream by value
+    Value(Box<dyn Read>),
+    /// used when passing in the input stream as a mutable reference
+    Ref(&'a mut dyn Read),
+}
+
+/// a helper wrapper enum that is used for storing the output stream
+/// this allows for it to be passed by value OR reference
+pub enum Writer<'a> {
+    /// used when passing in the output stream by value
+    Value(Box<dyn Write>),
+    /// used when passing in the output stream as a mutable reference
+    Ref(&'a mut dyn Write),
+}
+
+impl<'a> Deref for Reader<'a> {
+    type Target = dyn Read + 'a;
+
+    fn deref(&self) -> &Self::Target {
+        match self {
+            Self::Value(v) => &**v,
+            Self::Ref(r) => &**r,
+        }
+    }
+}
+
+impl<'a> DerefMut for Reader<'a> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        match self {
+            Self::Value(v) => &mut **v,
+            Self::Ref(r) => &mut **r,
+        }
+    }
+}
+
+impl<'a> Deref for Writer<'a> {
+    type Target = dyn Write + 'a;
+
+    fn deref(&self) -> &Self::Target {
+        match self {
+            Self::Value(v) => &**v,
+            Self::Ref(r) => &**r,
+        }
+    }
+}
+
+impl<'a> DerefMut for Writer<'a> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        match self {
+            Self::Value(v) => &mut **v,
+            Self::Ref(r) => &mut **r,
+        }
+    }
+}
+
+
 /// The struct representing a brainfuck interpreter instance
-pub struct Brainfuck {
+pub struct Brainfuck<'a> {
     /// the brainfuck source code to execute
     pub code: String,
     /// the input stream used for `,` operations
-    pub input: Option<Box<dyn Read>>,
+    pub input: Option<Reader<'a>>,
     /// the output stream used for `.` operations
-    pub output: Option<Box<dyn Write>>,
+    pub output: Option<Writer<'a>>,
     /// sets the maximum value of a cell, defaults to `255`
     pub max_cell_value: u32,
     /// sets the maximum length of the memory array
@@ -97,13 +159,13 @@ pub struct Brainfuck {
     instructions_ctn: usize,
 }
 
-impl Default for Brainfuck {
+impl<'a> Default for Brainfuck<'a> {
     fn default() -> Self {
         Self::new(String::new())
     }
 }
 
-impl Brainfuck {
+impl<'a> Brainfuck<'a> {
     /// creates a new instance of a brainfuck interpeter with the provided `code`
     ///
     /// - input and output streams default to [`std::io::stdin`] and [`std::io::stdout`] respectively
@@ -147,23 +209,51 @@ impl Brainfuck {
         self
     }
 
-    /// builder method to specify the input stream for the `,` operation
+    /// builder method to specify the input stream **passing by value**, for the `,` operation
     #[must_use]
     pub fn with_input<I>(mut self, input: I) -> Self
     where
         I: Read + 'static
     {
-        self.input = Some(Box::new(input));
+        self.input = Some(
+            Reader::Value(Box::new(input))
+        );
         self
     }
 
-    /// builder method to specify the output s tream for the `.` operation
+    /// builder method to specify the output stream **passing by value**, for the `.` operation
     #[must_use]
     pub fn with_output<O>(mut self, output: O) -> Self
     where
         O: Write + 'static
     {
-        self.output = Some(Box::new(output));
+        self.output = Some(
+            Writer::Value(Box::new(output))
+        );
+        self
+    }
+
+    /// builder method to specify the input stream **passing by reference**, for the `,` operation
+    #[must_use]
+    pub fn with_input_ref<I>(mut self, input: &'a mut I) -> Self
+    where
+        I: Read + 'static
+    {
+        self.input = Some(
+            Reader::Ref(input)
+        );
+        self
+    }
+
+    /// builder method to specify the output stream **passing by reference**, for the `.` operation
+    #[must_use]
+    pub fn with_output_ref<O>(mut self, output: &'a mut O) -> Self
+    where
+        O: Write + 'static
+    {
+        self.output = Some(
+            Writer::Ref(output)
+        );
         self
     }
 
@@ -210,13 +300,13 @@ impl Brainfuck {
 
     /// consumes itself and returns the input stream in an [`Option`]
     #[must_use]
-    pub fn into_input(self) -> Option<Box<dyn Read>> {
+    pub fn into_input(self) -> Option<Reader<'a>> {
         self.input
     }
 
     /// consumes itself and returns the output stream in an [`Option`]
     #[must_use]
-    pub fn into_output(self) -> Option<Box<dyn Write>> {
+    pub fn into_output(self) -> Option<Writer<'a>> {
         self.output
     }
 
@@ -290,10 +380,10 @@ impl Brainfuck {
     pub fn execute(&mut self) -> Result<Vec<u32>> {
         let (opening, closing) = (
             self.code.chars()
-                .filter(|c| c == &'[')
+                .filter(|c| *c == '[')
                 .count(),
             self.code.chars()
-                .filter(|c| c == &']')
+                .filter(|c| *c == ']')
                 .count()
         );
 
