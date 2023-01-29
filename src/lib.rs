@@ -374,9 +374,9 @@ impl<'a> Brainfuck<'a> {
     /// - `[`: always should be paired with a `]`, acts as a "loop" in brainfuck
     ///   the code that is enclosed within a pair of `[ ]` gets looped over until the current cell != 0
     /// - `]`: the closing bracket for a loop, paired with `[`
-    ///   if current cell != jump back to corresponding `[`
+    ///   if the current cell != 0, jump back to corresponding `[`
     ///
-    /// returns the used memory array of the program, ([`Vec<u32>`])
+    /// returns the used memory array of the program which is a [`Vec<u32>`]
     ///
     /// # Errors
     /// - [`Error::MismatchedBrackets`]: the amount of `[` in the code does not equal the amount of `]`
