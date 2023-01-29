@@ -300,12 +300,14 @@ impl<'a> Brainfuck<'a> {
 
     /// consumes itself and returns the input stream in an [`Option`]
     #[must_use]
+    #[allow(clippy::missing_const_for_fn)]
     pub fn into_input(self) -> Option<Reader<'a>> {
         self.input
     }
 
     /// consumes itself and returns the output stream in an [`Option`]
     #[must_use]
+    #[allow(clippy::missing_const_for_fn)]
     pub fn into_output(self) -> Option<Writer<'a>> {
         self.output
     }

@@ -77,7 +77,7 @@ mod tests {
             .with_output_ref(&mut cursor)
             .execute()?;
 
-        println!("{}",
+        println!("\n{}\n",
             String::from_utf8(cursor.into_inner())
                 .unwrap()
         );
