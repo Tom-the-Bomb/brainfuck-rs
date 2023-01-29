@@ -331,6 +331,7 @@ impl<'a> Brainfuck<'a> {
     ///
     /// it prompts every time this function is called however
     /// as a fallback to if no other input stream is specified for the `,` operation
+    #[must_use]
     fn read_from_stdin() -> u32 {
         let mut buffer = String::new();
         match std::io::stdin()
