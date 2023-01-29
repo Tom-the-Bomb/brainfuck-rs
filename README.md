@@ -8,9 +8,9 @@ For more information visit the documentation [here](https://docs.rs/brainfuck-ex
 Below is a basic example on how to use the crate
 ```rust
 
+use std::fs::File;
 // import Result typealias and interpreter struct
 use brainfuck_exe::{Result, Brainfuck};
-use std::fs::File;
 
 fn main() -> Result<()> {
     // brainfuck code to print "Hello, World!"
@@ -20,14 +20,16 @@ fn main() -> Result<()> {
     Brainfuck::new(code)
         // optional builder method to write the output into a file not STDOUT
         .with_output(
-            File::create("output.txt")
+            File::options()
+                .write(true)
+                .open("tests/output.txt")
                 .unwrap()
         )
         // executes the code
         .execute()?;
 
     // alternatively use this to retrieve the code from an existing source file
-    Brainfuck::from_file("hello_world.bf")?
+    Brainfuck::from_file("tests/hello_world.bf")?
         .execute()?;
 
     Ok(())
