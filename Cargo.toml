@@ -6,7 +6,7 @@ repository = "https://github.com/Tom-the-Bomb/brainfuck-rs"
 documentation = "https://docs.rs/brainfuck-exe"
 license = "MIT"
 readme = "README.md"
-version = "0.1.6"
+version = "0.1.7"
 edition = "2021"
 keywords = [
     "programming-language",
@@ -15,8 +15,17 @@ keywords = [
 ]
 categories = [
     "compilers",
+    "command-line-interface",
     "parser-implementations",
 ]
 
+[[bin]]
+name = "brainfuck"
+required-features = ["cli"]
+
 [dependencies]
-clap = { version = "4.1", features = ["derive"] }
+clap = { version = "4.1", features = ["derive"], optional = true }
+
+[features]
+default = ["cli"]
+cli = ["dep:clap"]

@@ -3,7 +3,20 @@
 //! a simple [`brainfuck`](https://esolangs.org/wiki/Brainfuck) interpreter crate implemented in rust 🦀
 //! with many available customizations for flexibility
 //!
-//! see [`Brainfuck`] for more information on usage
+//! see the [`Brainfuck`] struct for more information on usage
+//!
+//! ## Usage
+//!
+//! In `Cargo.toml`:
+//! ```toml
+//! brainfuck-exe = { version = "*", default-features = false }
+//! ```
+//!
+//! If you are only using it as a library, and the CLI is not needed,
+//! disable the `cli` (included by default) feature to remove unecessary dependencies:
+//! ```toml
+//! brainfuck-exe = { version = "*", default-features = false }
+//! ```
 //!
 //! ## Example
 //! Below is a basic example on how to use the crate

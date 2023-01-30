@@ -1,5 +1,7 @@
 //! CLI implementation for the brainfuck interpreter
 //! powered by [`clap`]
+//!
+//! requires the `cli` feature which is enabled by default
 
 use std::{fs::File, io::Cursor};
 use clap::{CommandFactory, Parser};
