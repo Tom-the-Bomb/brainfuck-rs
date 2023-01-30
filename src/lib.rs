@@ -7,9 +7,9 @@
 //!
 //! ## Usage
 //!
-//! In `Cargo.toml`:
+//! In your `Cargo.toml`:
 //! ```toml
-//! brainfuck-exe = { version = "*", default-features = false }
+//! brainfuck-exe = "*"
 //! ```
 //!
 //! If you are only using it as a library, and the CLI is not needed,
