@@ -56,5 +56,7 @@ impl fmt::Display for Error {
     }
 }
 
+impl std::error::Error for Error {}
+
 /// result type alias for [`Error`]
 pub type Result<T, E = Error> = std::result::Result<T, E>;
