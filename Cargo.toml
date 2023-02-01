@@ -29,3 +29,10 @@ clap = { version = "4.1", features = ["derive"], optional = true }
 [features]
 default = ["cli"]
 cli = ["dep:clap"]
+
+[dev-dependencies]
+criterion = "0.4"
+
+[[bench]]
+name = "brainfuck_bench"
+harness = false

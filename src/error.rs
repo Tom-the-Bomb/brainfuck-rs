@@ -1,3 +1,5 @@
+//! module containing the [`Error`] enum and corresponding [`Result`] typealias for this crate
+
 use std::{
     fmt,
     io::Error as IoError,
