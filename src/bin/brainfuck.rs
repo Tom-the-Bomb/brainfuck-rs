@@ -76,7 +76,7 @@ fn main() {
 
     if let Some(input) = args.input {
         let bytes = Cursor::new(
-            input.as_bytes().to_vec()
+            input.into_bytes()
         );
         interp = interp.with_input(bytes);
     }
