@@ -427,6 +427,8 @@ impl<'a> Brainfuck<'a> {
             .chars()
             .count()
         {
+            let mut incr_inst = true;
+
             match self.code
                 .chars()
                 .nth(code_idx)
@@ -528,10 +530,13 @@ impl<'a> Brainfuck<'a> {
                     }
                     code_idx -= 1;
                 },
-                _ => (),
+                _ => incr_inst = false,
             }
             code_idx += 1;
-            self.instructions_ctn += 1;
+
+            if incr_inst {
+                self.instructions_ctn += 1;
+            }
 
             if let Some(cap) = self.instructions_limit {
                 if self.instructions_ctn > cap {
