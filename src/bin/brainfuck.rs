@@ -43,9 +43,10 @@ struct Args {
     /// if not provided, there will be no limit
     #[arg(long, action, verbatim_doc_comment)]
     instructions_limit: Option<usize>,
-    /// specifies whether or not to print the memory array after execution
-    #[arg(long, action)]
-    print_cells: bool,
+    /// specifies whether or not to print the program execution information
+    /// such as the program cells, pointer and instructions-count
+    #[arg(long, action, verbatim_doc_comment)]
+    print_info: bool,
 }
 
 #[allow(clippy::option_if_let_else, clippy::single_match_else)]
@@ -101,8 +102,8 @@ fn main() {
     }
 
     match interp.execute() {
-        Ok(cells) => if args.print_cells {
-            println!("\n\nCELLS: {cells:?}");
+        Ok(info) => if args.print_info {
+            println!("\n\n{info:?}");
         },
         Err(e) => println!(
             "Something went wrong: {e}"

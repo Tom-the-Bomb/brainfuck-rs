@@ -136,6 +136,21 @@ impl<'a> DerefMut for Writer<'a> {
     }
 }
 
+/// struct containing various information regarding the program execution
+/// such as the final memory array and the final pointer index etc.
+#[derive(Debug, Clone)]
+pub struct ExecutionInfo {
+    /// the final memory array (cells) of the brainfuck program
+    pub cells: Vec<u32>,
+    /// the final pointer index
+    pub pointer: usize,
+    /// the length of the brainfuck code
+    pub code_len: usize,
+    /// the amount of instructions execute
+    ///
+    /// this also can be retrieved with `Brainfuck::instructions_count`
+    pub instructions: usize,
+}
 
 /// The struct representing a brainfuck interpreter instance
 pub struct Brainfuck<'a> {
@@ -389,14 +404,15 @@ impl<'a> Brainfuck<'a> {
     /// - `]`: the closing bracket for a loop, paired with `[`
     ///   if the current cell != 0, jump back to corresponding `[`
     ///
-    /// returns the used memory array of the program which is a [`Vec<u32>`]
+    /// returns [`ExecutionInfo`]: a struct containing various information on the program's execution
+    /// such as the used memory array, the final pointer, instructions count etc.
     ///
     /// # Errors
     /// - [`Error::MismatchedBrackets`]: the amount of `[` in the code does not equal the amount of `]`
     /// - [`Error::IoError`]: Propogated from [`std::io::Error`] in the `.` operation
     ///
     #[allow(clippy::too_many_lines)]
-    pub fn execute(&mut self) -> Result<Vec<u32>> {
+    pub fn execute(&mut self) -> Result<ExecutionInfo> {
         let (opening, closing) = (
             self.code.chars()
                 .filter(|c| *c == '[')
@@ -545,6 +561,11 @@ impl<'a> Brainfuck<'a> {
             }
         }
 
-        Ok(cells)
+        Ok(ExecutionInfo {
+            cells,
+            pointer: ptr,
+            code_len: code_idx,
+            instructions: self.instructions_count(),
+        })
     }
 }
