@@ -67,6 +67,7 @@ use std::{
     path::Path,
     io::{Read, Write},
     ops::{Deref, DerefMut},
+    time::{Instant, Duration},
 };
 pub use error::{Error, Result};
 
@@ -150,6 +151,8 @@ pub struct ExecutionInfo {
     ///
     /// this also can be retrieved with `Brainfuck::instructions_count`
     pub instructions: usize,
+    /// the time it took for the program execution as a [`Duration`]
+    pub time: Duration,
 }
 
 /// The struct representing a brainfuck interpreter instance
@@ -438,6 +441,7 @@ impl<'a> Brainfuck<'a> {
         self.instructions_ctn = 0;
         let mut code_idx = 0usize;
         let mut ptr = 0usize;
+        let time = Instant::now();
 
         while code_idx < self.code
             .chars()
@@ -566,6 +570,7 @@ impl<'a> Brainfuck<'a> {
             pointer: ptr,
             code_len: code_idx,
             instructions: self.instructions_count(),
+            time: time.elapsed(),
         })
     }
 }
