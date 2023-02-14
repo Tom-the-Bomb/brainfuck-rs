@@ -67,7 +67,7 @@ use std::{
     path::Path,
     io::{Read, Write},
     ops::{Deref, DerefMut},
-    time::{Instant, Duration},
+    time::Instant,
 };
 pub use error::{Error, Result};
 
@@ -152,7 +152,9 @@ pub struct ExecutionInfo {
     /// this also can be retrieved with `Brainfuck::instructions_count`
     pub instructions: usize,
     /// the time it took for the program execution as a [`Duration`]
-    pub time: Duration,
+    ///
+    /// it is [`None`] if it was not specified in [`Brainfuck`] to `bench_execution`
+    pub time: Option<u128>,
 }
 
 /// The struct representing a brainfuck interpreter instance
@@ -185,6 +187,11 @@ pub struct Brainfuck<'a> {
     /// defaults to [`None`], which is *no* limit
     /// (for safety and debugging usage)
     pub instructions_limit: Option<usize>,
+    /// specifies whether or not to bench the execution
+    ///
+    /// useful for use cases in `WASM` where the system clock cannot be accessed,
+    /// defaults to `false`
+    pub bench_execution: bool,
     /// an instructions counter to count the number of instructions executed thus far
     instructions_ctn: usize,
 }
@@ -214,6 +221,7 @@ impl<'a> Brainfuck<'a> {
             flush_output: true,
             prompt_stdin_once: false,
             instructions_limit: None,
+            bench_execution: false,
             instructions_ctn: 0,
         }
     }
@@ -323,6 +331,13 @@ impl<'a> Brainfuck<'a> {
     #[must_use]
     pub const fn with_instructions_limit(mut self, limit: usize) -> Self {
         self.instructions_limit = Some(limit);
+        self
+    }
+
+    /// builder method to specify whether or not to bench the program execution
+    #[must_use]
+    pub const fn with_bench_execution(mut self, bench: bool) -> Self {
+        self.bench_execution = bench;
         self
     }
 
@@ -441,7 +456,8 @@ impl<'a> Brainfuck<'a> {
         self.instructions_ctn = 0;
         let mut code_idx = 0usize;
         let mut ptr = 0usize;
-        let time = Instant::now();
+        let time = self.bench_execution
+            .then_some(Instant::now());
 
         while code_idx < self.code
             .chars()
@@ -570,7 +586,8 @@ impl<'a> Brainfuck<'a> {
             pointer: ptr,
             code_len: code_idx,
             instructions: self.instructions_count(),
-            time: time.elapsed(),
+            time: time
+                .map(|t| t.elapsed().as_millis()),
         })
     }
 }
