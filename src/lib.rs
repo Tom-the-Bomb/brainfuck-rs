@@ -192,7 +192,7 @@ pub struct Brainfuck<'a> {
     /// specifies whether or not to bench the execution
     ///
     /// useful for use cases in `WASM` where the system clock cannot be accessed,
-    /// defaults to `false`
+    /// defaults to `true`
     pub bench_execution: bool,
     /// an instructions counter to count the number of instructions executed thus far
     instructions_ctn: usize,
@@ -223,7 +223,7 @@ impl<'a> Brainfuck<'a> {
             flush_output: true,
             prompt_stdin_once: false,
             instructions_limit: None,
-            bench_execution: false,
+            bench_execution: true,
             instructions_ctn: 0,
         }
     }
