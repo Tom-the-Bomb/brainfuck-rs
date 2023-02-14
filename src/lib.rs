@@ -457,7 +457,7 @@ impl<'a> Brainfuck<'a> {
         let mut code_idx = 0usize;
         let mut ptr = 0usize;
         let time = self.bench_execution
-            .then_some(Instant::now());
+            .then(Instant::now);
 
         while code_idx < self.code
             .chars()
