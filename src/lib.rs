@@ -67,7 +67,7 @@ use std::{
     path::Path,
     io::{Read, Write},
     ops::{Deref, DerefMut},
-    time::Instant,
+    time::{Instant, Duration},
 };
 pub use error::{Error, Result};
 
@@ -143,6 +143,8 @@ impl<'a> DerefMut for Writer<'a> {
 pub struct ExecutionInfo {
     /// the final memory array (cells) of the brainfuck program
     pub cells: Vec<u32>,
+    /// the size of the final memory array of the brainfuck program
+    pub mem_size: usize,
     /// the final pointer index
     pub pointer: usize,
     /// the length of the brainfuck code
@@ -154,7 +156,7 @@ pub struct ExecutionInfo {
     /// the time it took for the program execution as a [`Duration`]
     ///
     /// it is [`None`] if it was not specified in [`Brainfuck`] to `bench_execution`
-    pub time: Option<u128>,
+    pub time: Option<Duration>,
 }
 
 /// The struct representing a brainfuck interpreter instance
@@ -580,14 +582,16 @@ impl<'a> Brainfuck<'a> {
                 }
             }
         }
+        let mem_size = cells.len();
 
         Ok(ExecutionInfo {
             cells,
+            mem_size,
             pointer: ptr,
             code_len: code_idx,
             instructions: self.instructions_count(),
             time: time
-                .map(|t| t.elapsed().as_millis()),
+                .map(|t| t.elapsed()),
         })
     }
 }
