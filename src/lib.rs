@@ -195,7 +195,7 @@ pub struct Brainfuck<'a> {
     /// defaults to `true`
     pub bench_execution: bool,
     /// an optional fallback [`char`] for the input operation
-    /// in instances of EOL (end of input) on the input stream
+    /// in instances of EOF (end of input) on the input stream
     pub fallback_input: Option<char>,
     /// an instructions counter to count the number of instructions executed thus far
     instructions_ctn: usize,
@@ -346,7 +346,7 @@ impl<'a> Brainfuck<'a> {
         self.bench_execution = bench;
         self
     }
-    /// builder method to set a fallback [`char`] for instances of EOL on the input stream
+    /// builder method to set a fallback [`char`] for instances of EOF on the input stream
     #[must_use]
     pub const fn with_fallback_input(mut self, fallback: char) -> Self {
         self.fallback_input = Some(fallback);

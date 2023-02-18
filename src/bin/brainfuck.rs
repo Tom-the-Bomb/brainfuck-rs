@@ -43,6 +43,9 @@ struct Args {
     /// if not provided, there will be no limit
     #[arg(long, action, verbatim_doc_comment)]
     instructions_limit: Option<usize>,
+    /// the fallback character for EOF in the input stream
+    #[arg(long, action)]
+    fallback_char: Option<char>,
     /// specifies whether or not to print the program execution information
     /// such as the program cells, pointer and instructions-count
     #[arg(long, action, verbatim_doc_comment)]
@@ -101,10 +104,18 @@ fn main() {
         interp = interp.with_instructions_limit(limit);
     }
 
+    if let Some(chr) = args.fallback_char {
+        interp = interp.with_fallback_input(chr);
+    }
+
     match interp.execute() {
         Ok(info) => if args.print_info {
             println!("\n\n{info:?}");
-        },
+        } else {
+            println!("\n\nFinished in [{} ms]", info.time
+                .map_or(0, |t| t.as_millis())
+            );
+        }
         Err(e) => println!(
             "Something went wrong: {e}"
         ),
