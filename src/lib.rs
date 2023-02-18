@@ -194,6 +194,9 @@ pub struct Brainfuck<'a> {
     /// useful for use cases in `WASM` where the system clock cannot be accessed,
     /// defaults to `true`
     pub bench_execution: bool,
+    /// an optional fallback [`char`] for the input operation
+    /// in instances of EOL (end of input) on the input stream
+    pub fallback_input: Option<char>,
     /// an instructions counter to count the number of instructions executed thus far
     instructions_ctn: usize,
 }
@@ -224,6 +227,7 @@ impl<'a> Brainfuck<'a> {
             prompt_stdin_once: false,
             instructions_limit: None,
             bench_execution: true,
+            fallback_input: None,
             instructions_ctn: 0,
         }
     }
@@ -342,6 +346,12 @@ impl<'a> Brainfuck<'a> {
         self.bench_execution = bench;
         self
     }
+    /// builder method to set a fallback [`char`] for instances of EOL on the input stream
+    #[must_use]
+    pub const fn with_fallback_input(mut self, fallback: char) -> Self {
+        self.fallback_input = Some(fallback);
+        self
+    }
 
     /// a getter that returns the number of instructions executed thus far
     #[must_use]
@@ -363,18 +373,25 @@ impl<'a> Brainfuck<'a> {
         self.output
     }
 
+    /// basic helper function to retrieve the fallback char for the input stream
+    #[inline]
+    fn get_fallback_char(&self) -> u32 {
+        self.fallback_input
+            .map_or(0, |c| u32::from(c))
+    }
+
     /// helper method to read from [`std::io::stdin`]
     ///
     /// it accomplishes such in one prompt, retrieving all the data at once
     /// as a fallback to if no other input stream is specified for the `,` operation
     #[must_use]
-    fn read_from_stdin_once() -> u32 {
+    fn read_from_stdin_once(&self) -> u32 {
         let mut buffer = [0];
         match std::io::stdin()
             .read_exact(&mut buffer[0..1])
         {
             Ok(_) => u32::from(buffer[0]),
-            Err(_) => 0,
+            Err(_) => self.get_fallback_char(),
         }
     }
 
@@ -383,7 +400,7 @@ impl<'a> Brainfuck<'a> {
     /// it prompts every time this function is called however
     /// as a fallback to if no other input stream is specified for the `,` operation
     #[must_use]
-    fn read_from_stdin() -> u32 {
+    fn read_from_stdin(&self) -> u32 {
         let mut buffer = String::new();
         match std::io::stdin()
             .read_line(&mut buffer)
@@ -391,8 +408,11 @@ impl<'a> Brainfuck<'a> {
             Ok(_) => buffer
                 .chars()
                 .next()
-                .map_or(0, |c| c as u32),
-            Err(_) => 0,
+                .map_or_else(
+                    || self.get_fallback_char(),
+                    |c| u32::from(c)
+                ),
+            Err(_) => self.get_fallback_char(),
         }
     }
 
@@ -531,12 +551,12 @@ impl<'a> Brainfuck<'a> {
                             .read_exact(&mut buffer[0..1])
                         {
                             Ok(_) => u32::from(buffer[0]),
-                            Err(_) => 0,
+                            Err(_) => self.get_fallback_char(),
                         }
                     } else if self.prompt_stdin_once {
-                        Self::read_from_stdin_once()
+                        self.read_from_stdin_once()
                     } else {
-                        Self::read_from_stdin()
+                        self.read_from_stdin()
                     },
                 Some('[') =>
                     if cells[ptr] == 0 {
