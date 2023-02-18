@@ -377,7 +377,7 @@ impl<'a> Brainfuck<'a> {
     #[inline]
     fn get_fallback_char(&self) -> u32 {
         self.fallback_input
-            .map_or(0, |c| u32::from(c))
+            .map_or(0, u32::from)
     }
 
     /// helper method to read from [`std::io::stdin`]
@@ -410,7 +410,7 @@ impl<'a> Brainfuck<'a> {
                 .next()
                 .map_or_else(
                     || self.get_fallback_char(),
-                    |c| u32::from(c)
+                    u32::from,
                 ),
             Err(_) => self.get_fallback_char(),
         }
