@@ -74,7 +74,7 @@ mod tests {
         let buffer = Vec::new();
         let mut cursor = Cursor::new(buffer);
 
-        let _interp = Brainfuck::new("-.")
+        Brainfuck::new("-.")
             .with_output_ref(&mut cursor)
             .execute()?;
 
