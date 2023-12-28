@@ -390,7 +390,7 @@ impl<'a> Brainfuck<'a> {
         match std::io::stdin()
             .read_exact(&mut buffer[0..1])
         {
-            Ok(_) => u32::from(buffer[0]),
+            Ok(()) => u32::from(buffer[0]),
             Err(_) => self.get_fallback_char(),
         }
     }
@@ -550,7 +550,7 @@ impl<'a> Brainfuck<'a> {
                         match reader
                             .read_exact(&mut buffer[0..1])
                         {
-                            Ok(_) => u32::from(buffer[0]),
+                            Ok(()) => u32::from(buffer[0]),
                             Err(_) => self.get_fallback_char(),
                         }
                     } else if self.prompt_stdin_once {
