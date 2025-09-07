@@ -4,6 +4,10 @@ a simple [`brainfuck`](https://esolangs.org/wiki/Brainfuck) interpreter crate im
 with many available customizations for flexibility  
 For more information visit the documentation [here](https://docs.rs/brainfuck-exe)
 
+## Website
+
+A simple webpage UI for the interpreter was also implemented using [`WebAssembly`](https://webassembly.org/) and this crate over [here](https://brainfuck.tomthebomb.dev)
+
 ## Usage
 
 In your `Cargo.toml`:  
